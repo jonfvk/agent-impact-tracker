@@ -72,12 +72,14 @@ def generate_text_summary_report(
         lines.append("Top files by agent modification frequency:")
         # Sort by total agent touches per file
         file_counts = [
-            (f, sum(agent_counts.values()))
+            (f, sum(agent_counts.values()), agent_counts)
             for f, agent_counts in file_agent_counts.items()
         ]
         file_counts.sort(key=lambda x: x[1], reverse=True)
-        for f, count in file_counts[:10]:
-            lines.append(f"  {f}: {count} agent touches")
+        for f, count, agent_counts in file_counts[:10]:
+            # Compose agent breakdown string
+            agent_str = ', '.join(f"{agent}: {agent_counts[agent]}" for agent in sorted(agent_counts.keys()))
+            lines.append(f"  {f} ({count} touches): {agent_str}")
         lines.append("")
     function_agent_counts = aggregation.get('function_agent_counts', {})
     if function_agent_counts:
