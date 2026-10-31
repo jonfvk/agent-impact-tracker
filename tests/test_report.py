@@ -40,9 +40,21 @@ class TestReportHighFrequencyHighlight(unittest.TestCase):
     def test_high_frequency_files_sorted(self):
         summary = report.generate_text_summary_report(self.aggregation)
         # b.py has 7 touches, c.py has 4, a.py has 3
-        idx_b = summary.find('b.py')
-        idx_c = summary.find('c.py')
-        idx_a = summary.find('a.py')
+        # Find the line numbers for each file in the summary
+        lines = summary.splitlines()
+        file_lines = [line for line in lines if any(f in line for f in ("a.py", "b.py", "c.py"))]
+        # Build a mapping from file to its index in the file_lines list
+        file_to_idx = {}
+        for idx, line in enumerate(file_lines):
+            if 'b.py' in line:
+                file_to_idx['b.py'] = idx
+            if 'c.py' in line:
+                file_to_idx['c.py'] = idx
+            if 'a.py' in line:
+                file_to_idx['a.py'] = idx
+        idx_b = file_to_idx.get('b.py', -1)
+        idx_c = file_to_idx.get('c.py', -1)
+        idx_a = file_to_idx.get('a.py', -1)
         self.assertTrue(idx_b < idx_c < idx_a)
 
     def test_high_frequency_files_counts(self):
